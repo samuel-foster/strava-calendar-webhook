@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  strava-sync:
+    build: .
+    container_name: strava-gcal-sync
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    networks:
+      - default
