@@ -77,11 +77,8 @@ function formatActivityAsEvent(activity) {
   const durationMinutes = Math.round(activity.elapsed_time / 60);
   const endTime = new Date(startTime.getTime() + durationMinutes * 60000);
 
-  // Build event title with activity type and name
+  // Use activity name as-is for the event title
   let title = activity.name || activity.type;
-  if (activity.type) {
-    title = `[${activity.type}] ${title}`;
-  }
 
   // Build event description with details
   let description = `Strava Activity: strava:${activity.id}\n`;
