@@ -29,8 +29,19 @@ function createTables() {
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `, (err) => {
-    if (err) console.error('Error creating state table:', err);
-    else console.log('State table ready');
+    if (err) {
+      console.error('Error creating state table:', err);
+    } else {
+      console.log('State table ready');
+      // Initialize state record after table is created
+      db.run(`
+        INSERT OR IGNORE INTO state (key, value)
+        VALUES ('last_activity_id', '0'), ('last_webhook_id', '0')
+      `, (err) => {
+        if (err) console.error('Error initializing state:', err);
+        else console.log('State records initialized');
+      });
+    }
   });
 
   // Sync log table: audit trail
@@ -48,14 +59,6 @@ function createTables() {
   `, (err) => {
     if (err) console.error('Error creating sync_log table:', err);
     else console.log('Sync log table ready');
-  });
-
-  // Initialize state record if not exists
-  db.run(`
-    INSERT OR IGNORE INTO state (key, value)
-    VALUES ('last_activity_id', '0'), ('last_webhook_id', '0')
-  `, (err) => {
-    if (err) console.error('Error initializing state:', err);
   });
 }
 
