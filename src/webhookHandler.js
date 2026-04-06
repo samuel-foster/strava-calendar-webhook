@@ -13,7 +13,7 @@ function handleWebhookVerification(req, res) {
   const token = req.body['hub.verify_token'];
   const challenge = req.body['hub.challenge'];
 
-  console.log('Webhook verification request received:', { mode, token: token ? '***' : 'missing', challenge: challenge ? '***' : 'missing' });
+  console.log('Webhook verification request received:', { mode, token, challenge, expected: WEBHOOK_VERIFICATION_TOKEN });
 
   if (mode !== 'subscribe') {
     console.error('Invalid hub.mode:', mode);
