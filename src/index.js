@@ -9,15 +9,19 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
 
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Manual polling trigger (for testing)
+// Manual polling trigger — protected by sync token
 app.post('/sync', async (req, res) => {
+  const token = req.headers['x-sync-token'];
+  if (!token || token !== process.env.SYNC_SECRET_TOKEN) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
   console.log('Manual sync requested');
   try {
     await pollAndSync();
