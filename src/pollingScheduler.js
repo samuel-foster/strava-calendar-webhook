@@ -33,12 +33,13 @@ async function pollAndSync() {
           console.log(`[POLLING] Syncing activity ${activity.id}: ${activity.name}`);
           const eventId = await syncActivityToCalendar(activity);
           await logSync(activity.id, activity.name, 'success', eventId, null, 'polling');
-          await sendSuccessAlert(activity.name, activity.id, eventId);
+          // No Discord alert for polling successes (only errors)
           await updateLastActivityId(activity.id);
           synced++;
         } catch (error) {
           console.error(`[POLLING] Failed to sync activity ${activity.id}:`, error.message);
           await logSync(activity.id, activity.name, 'error', null, error.message, 'polling');
+          // Only send Discord alert for polling errors
           await sendErrorAlert(error, activity.id, 'Polling sync failed');
         }
       }
