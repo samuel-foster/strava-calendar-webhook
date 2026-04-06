@@ -8,16 +8,30 @@ const WEBHOOK_VERIFICATION_TOKEN = process.env.STRAVA_WEBHOOK_VERIFICATION_TOKEN
 
 // Handle webhook verification from Strava
 function handleWebhookVerification(req, res) {
-  const token = req.body.verify_token;
-  const challenge = req.body.challenge;
+  // Strava sends validation as query parameters: hub.mode, hub.verify_token, hub.challenge
+  const mode = req.body['hub.mode'];
+  const token = req.body['hub.verify_token'];
+  const challenge = req.body['hub.challenge'];
+
+  console.log('Webhook verification request received:', { mode, token: token ? '***' : 'missing', challenge: challenge ? '***' : 'missing' });
+
+  if (mode !== 'subscribe') {
+    console.error('Invalid hub.mode:', mode);
+    return res.status(400).json({ error: 'Invalid mode' });
+  }
 
   if (token !== WEBHOOK_VERIFICATION_TOKEN) {
     console.error('Invalid webhook verification token');
     return res.status(403).json({ error: 'Invalid token' });
   }
 
-  console.log('Webhook verified successfully');
-  return res.json({ challenge });
+  if (!challenge) {
+    console.error('Missing hub.challenge');
+    return res.status(400).json({ error: 'Missing challenge' });
+  }
+
+  console.log('✅ Webhook verified successfully - echoing challenge');
+  return res.status(200).json({ 'hub.challenge': challenge });
 }
 
 // Verify Strava webhook signature
