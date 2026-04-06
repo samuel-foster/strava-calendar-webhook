@@ -3,7 +3,7 @@ const express = require('express');
 const { initDatabase, closeDatabase } = require('./database');
 const { initCalendarApi } = require('./calendarApi');
 const { handleWebhookVerification, handleWebhookEvent } = require('./webhookHandler');
-const { startPollingScheduler, stopPollingScheduler } = require('./pollingScheduler');
+const { startPollingScheduler, stopPollingScheduler, pollAndSync } = require('./pollingScheduler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +14,18 @@ app.use(express.json());
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Manual polling trigger (for testing)
+app.post('/sync', async (req, res) => {
+  console.log('Manual sync requested');
+  try {
+    await pollAndSync();
+    res.json({ status: 'Sync completed', timestamp: new Date().toISOString() });
+  } catch (error) {
+    console.error('Manual sync error:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Webhook endpoint (both GET for verification and POST for events)
