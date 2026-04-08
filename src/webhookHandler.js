@@ -1,4 +1,3 @@
-const crypto = require('crypto');
 const { getActivity } = require('./stravaApi');
 const { syncActivityToCalendar } = require('./calendarApi');
 const { logSync, updateLastActivityId } = require('./database');
@@ -34,35 +33,9 @@ function handleWebhookVerification(req, res) {
   return res.status(200).json({ 'hub.challenge': challenge });
 }
 
-// Verify Strava webhook signature
-function verifyWebhookSignature(req) {
-  const signature = req.headers['x-strava-signature'];
-  if (!signature) {
-    console.warn('Missing webhook signature');
-    return false;
-  }
-
-  const payload = JSON.stringify(req.body);
-  const hash = crypto
-    .createHmac('sha256', process.env.STRAVA_WEBHOOK_VERIFICATION_TOKEN)
-    .update(payload)
-    .digest('hex');
-
-  const isValid = hash === signature;
-  if (!isValid) {
-    console.error('Invalid webhook signature');
-  }
-  return isValid;
-}
-
 // Handle webhook event from Strava
 async function handleWebhookEvent(req, res) {
   try {
-    // Verify signature
-    if (!verifyWebhookSignature(req)) {
-      return res.status(403).json({ error: 'Invalid signature' });
-    }
-
     const event = req.body;
     console.log('Webhook event received:', event);
 
