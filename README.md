@@ -154,7 +154,7 @@ curl -X POST https://www.strava.com/api/v3/push_subscriptions \
   -F verify_token="$VERIFY_TOKEN"
 ```
 
-Strava will send a GET request to verify the callback — your app automatically responds with the challenge token.
+Strava will send a GET request with `hub.mode`, `hub.challenge`, and `hub.verify_token` as URL query parameters to verify the callback — your app automatically responds with the challenge token.
 
 On success, you'll receive a subscription ID (save this for reference).
 
@@ -193,6 +193,7 @@ Returns `{"status":"ok"}` if the app is running.
 GET /webhook?hub.mode=subscribe&hub.challenge=abc123&hub.verify_token=YOUR_TOKEN
 ```
 Called by Strava to verify the webhook. Automatically responds with the challenge token.
+Strava sends the verification fields in the URL query string, not the request body.
 
 ### Webhook (POST - Events)
 ```
@@ -352,6 +353,10 @@ sudo journalctl -u tailscaled -f
    curl "https://your-url/webhook?hub.mode=subscribe&hub.challenge=abc&hub.verify_token=YOUR_TOKEN"
    ```
    - Should return `{"hub.challenge":"abc"}`
+   - If it does not, restart the app/container so the latest webhook handler is running:
+     ```bash
+     docker compose restart strava-sync
+     ```
 
 4. Check container is running:
    ```bash

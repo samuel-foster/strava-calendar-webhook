@@ -5,12 +5,20 @@ const { sendSuccessAlert, sendErrorAlert } = require('./discord');
 
 const WEBHOOK_VERIFICATION_TOKEN = process.env.STRAVA_WEBHOOK_VERIFICATION_TOKEN;
 
+function getWebhookVerificationParams(req) {
+  const source = req.query && Object.keys(req.query).length > 0 ? req.query : req.body || {};
+
+  return {
+    mode: source['hub.mode'],
+    token: source['hub.verify_token'],
+    challenge: source['hub.challenge'],
+  };
+}
+
 // Handle webhook verification from Strava
 function handleWebhookVerification(req, res) {
   // Strava sends validation as query parameters: hub.mode, hub.verify_token, hub.challenge
-  const mode = req.body['hub.mode'];
-  const token = req.body['hub.verify_token'];
-  const challenge = req.body['hub.challenge'];
+  const { mode, token, challenge } = getWebhookVerificationParams(req);
 
   console.log('Webhook verification request received:', { mode, token: token ? '***' : 'missing', challenge: challenge ? '***' : 'missing' });
 

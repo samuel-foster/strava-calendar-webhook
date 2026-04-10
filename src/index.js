@@ -35,7 +35,7 @@ app.post('/sync', async (req, res) => {
 // Webhook endpoint (both GET for verification and POST for events)
 app.get('/webhook', (req, res) => {
   console.log('Webhook GET request received');
-  handleWebhookVerification({ body: req.query }, res);
+  handleWebhookVerification(req, res);
 });
 
 app.post('/webhook', (req, res) => {
